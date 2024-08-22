@@ -1,0 +1,222 @@
+# conftest.py
+
+import sys
+import os
+# Add the path to the directory containing 'source' module
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+import pytest
+from app import app, db, mqtt_client
+from test_config import TestConfig
+from unittest.mock import patch, MagicMock
+from sqlalchemy import create_engine 
+from sqlalchemy.orm import sessionmaker
+from member import Employee
+import pymysql
+
+pymysql.install_as_MySQLdb()
+
+@pytest.fixture(scope='session')
+def mysql_engine():
+    engine = create_engine('sqlite:///:memory:')
+    return engine
+
+@pytest.fixture(scope='session')
+def mysql_session(mysql_engine):
+    Session = sessionmaker(bind=mysql_engine)
+    session = Session()
+    yield session
+    session.close()
+
+@pytest.fixture(scope='function')
+def init_database(mysql_session):
+    db.metadata.create_all(bind=mysql_session.bind)
+    yield
+    db.session.remove()
+    db.metadata.drop_all(bind=mysql_session.bind)
+
+@pytest.fixture(scope='module')
+def client():
+    app.config['TESTING'] = True
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    with app.test_client() as client:
+        with app.app_context():
+            db.create_all()
+        yield client
+        with app.app_context():
+            db.drop_all()
+
+@pytest.fixture
+def new_emp():
+    return Employee(emp_id = 1, emp_name = "alice")
+
+
+@pytest.fixture
+def mock_mqtt_client(mocker):
+    mqtt_client = mocker.patch('app.mqtt_client', autospec=True)
+    mqtt_client.publish = MagicMock()
+    return mqtt_client
+
+
+# @pytest.fixture(scope='session')
+# def mysql_engine():
+#     engine = create_engine('mysql://username:sanjay@localhost/test_db')
+#     yield engine
+#     engine.dispose()
+
+# @pytest.fixture(scope='function')
+# def mysql_session(mysql_engine):
+#     connection = mysql_engine.connect()
+#     transaction = connection.begin()
+#     session = sessionmaker(bind=connection)()
+
+#     yield session
+
+#     session.close()
+#     transaction.rollback()
+#     connection.close()
+
+# @pytest.fixture
+# def client(mysql_session):
+#     app.config['TESTING'] = True
+#     app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://sanjay:password@localhost/test_db'
+#     with app.test_client() as client:
+#         with app.app_context():
+#             db.create_all()
+#         yield client
+#         with app.app_context():
+#             db.drop_all()
+
+
+
+@pytest.fixture(scope='module')
+def test_client():
+    app.config.from_object(TestConfig)
+
+    with app.test_client() as testing_client:
+        with app.app_context():
+            db.create_all()
+            yield testing_client
+            db.drop_all()
+
+@pytest.fixture(scope='function')
+def init_database():
+    db.create_all()
+    yield db
+    db.session.remove()
+    db.drop_all()
+
+@pytest.fixture
+def mock_mqtt_client(mocker):
+    mocker.patch.object(mqtt_client, 'publish')
+    return mqtt_client
+
+
+
+# test_mqtt_client.py
+from mqtt_client import publish_message
+
+def test_publish_message(mocker):
+    mock_mqtt_client = mocker.patch('mqtt_client.mqtt_client')
+    publish_message('test/topic', 'test message')
+    mock_mqtt_client.publish.assert_called_once_with('test/topic', 'test message')
+
+
+# test_subscriber.py
+from subscriber import run_mqtt_client
+
+def test_run_mqtt_client(mocker):
+    mock_mqtt_client = mocker.patch('subscriber.mqtt_client')
+    run_mqtt_client()
+    mock_mqtt_client.connect.assert_called_once_with('127.0.0.1', 1883, 60)
+    mock_mqtt_client.loop_forever.assert_called_once()
+
+
+
+
+
+
+
+
+
+
+
+
+import pytest
+from unittest.mock import patch, MagicMock
+from member import Employee
+from app import Todo
+@pytest.fixture
+def new_todo():
+    return Todo(content="new_desc")
+@pytest.fixture
+def new_emp():
+    return Employee(id = 1, name = "alice")
+@pytest.fixture
+def client():
+    mock_client = MagicMock()
+    with patch ('paho.mqtt.client.Client', return_value = mock_client):
+        from app import app
+        with app.test_client() as test_client:
+            yield (test_client, mock_client)
+
+
+
+
+
+
+
+
+from member import Employee
+from app import Todo
+import pytest
+from unittest.mock import patch, MagicMock
+from db import db
+import pytest
+
+@pytest.fixture()
+def client():
+    mock_client = MagicMock()
+    print("setup")
+    with patch('paho.mqtt.client.Client', return_value = mock_client):
+        from app import app
+        with app.test_client() as test_client:
+            yield (test_client, mock_client)
+            print("x")
+    print("teardown")
+    mock_client.reset_mock()
+@pytest.fixture(scope = "module")
+def new_employee():
+    return Employee(name="test")
+
+from flask import Flask
+from pytest_mock_resources import create_mysql_fixture
+mysql = create_mysql_fixture(db.Model, session=True)
+@pytest.fixture
+def dbsession(mysql):
+    session = mysql
+    yield session
+
+
+@pytest.fixture
+def mock_app(dbsession):
+    # Configure the mock app's config attribute
+    mock_app = MagicMock(spec=Flask)
+    # engine = dbsession.bind
+    # mock_app.config = {
+    #     'SQLALCHEMY_DATABASE_URI': str(engine.url),
+    #     'SQLALCHEMY_TRACK_MODIFICATIONS': False,
+    # }
+    # from flask_sqlalchemy_session import flask_scoped_session
+    #
+    # session = flask_scoped_session(dbsession, mock_app)
+
+    yield mock_app
+
+
+
+
+
+
+
+

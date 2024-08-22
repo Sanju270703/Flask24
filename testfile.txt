@@ -1,0 +1,207 @@
+import json
+def test_api(client):
+    # print(f"checking -->> {client[0]}")
+    test_client, mock_mqtt_client = client
+    response = test_client.get('/')  # Simulate a GET request to the home route
+    assert response.status_code == 200  # Check that the response status code is 200
+    assert response.data.decode() == "Hello World!"  # Check the response data
+    response = test_client.post("/", json = {"content":"learning"})
+    assert response.status_code == 200
+    assert response.get_json() == {"message": "Todo sent to creation successfully"}
+    response = test_client.put("/update/1", json = {"content":"update_learning"})
+    assert response.status_code == 200
+    assert response.get_json() == {"message": "Todo sent for updation successfully"}
+    response = test_client.delete("/delete/1")
+    assert response.status_code == 200
+    assert response.get_json() == {"message": "Todo published for deletion"}
+    response = test_client.post("/employee", json = {"name":"alice", "id":1})
+    assert response.status_code == 200
+    assert response.get_json() == {"message": "Employee sent for creation successfully"}
+    response = test_client.put("/employee/update/1", json = {"name":"update_alice", "id":1})
+    assert response.status_code == 200
+    assert response.get_json() == {"message": "Employee sent for updation successfully"}
+    response = test_client.delete("/employee/delete/1", json = {"name":"alice", "id":1})
+    assert response.status_code == 200
+    assert response.get_json() == {"message": "Employee sent for deletion successfully"}
+    #down the mqtt client and test the exception
+    mock_mqtt_client.publish.side_effect = RuntimeError("MQTT client is down")
+    response = test_client.post("/", json = {"content":"new_desc"})
+    assert response.status_code == 400
+    assert response.get_json() == {"message": "Failed to create todo", "error":"MQTT client is down"}
+    response = test_client.put("/update/1", json = {"content":"update_desc"})
+    assert response.status_code == 400
+    assert response.get_json() == {"message": "Failed to update todo", "error":"MQTT client is down"}
+    response = test_client.delete("/delete/1", json = {})
+    assert response.status_code == 400
+    assert response.get_json() == {"message": "Failed to delete todo", "error":"MQTT client is down"}
+    response = test_client.post("/employee", json = {"name":"alice", "id":1})
+    assert response.status_code == 400
+    assert response.get_json() == {"message": "Failed to create employee", "error":"MQTT client is down"}
+    response = test_client.put("/employee/update/1", json = {"name":"update_alice", "id":1})
+    assert response.status_code == 400
+    assert response.get_json() == {"message": "Failed to update employee", "error":"MQTT client is down"}
+    response = test_client.delete("/employee/delete/1", json = {})
+    assert response.status_code == 400
+    assert response.get_json() == {"message": "Failed to delete employee", "error":"MQTT client is down"}
+
+
+
+
+
+
+
+
+
+
+
+
+    import json
+import python_on_whales
+from member import Employee
+from app import Todo
+from unittest.mock import patch, MagicMock
+def test_api2(client):
+    response = client[0].post("/employee", json={"id":1, "name": "test"})
+    assert response.status_code == 200
+    assert response.get_json() == {'message': 'Published for creation'}
+
+    response = client[0].put("/employee/update/1", json={"id":1, "name": "test"})
+    assert response.status_code == 200
+    assert response.get_json() == {'message': 'Published for update'}
+
+    response = client[0].delete("/employee/delete/1")
+    assert response.status_code == 200
+    assert response.get_json() == {'message': 'Published for deletion'}
+
+    response = client[0].post("/", json={"content": "test"})
+    assert response.status_code == 200
+    assert response.get_json() == {'message': 'Published for creation'}
+
+    response = client[0].put("/update/1", json={"content": "test"})
+    assert response.status_code == 200
+    assert response.get_json() == {'message': 'Published for update'}
+
+    response = client[0].delete("/delete/1")
+    assert response.status_code == 200
+    assert response.get_json() == {'message': 'Published for deletion'}
+    # down the mqtt client and test the exception
+    client[1].publish.side_effect = RuntimeError("MQTT client is down")
+    res = client[0].post("/employee", json={"id":1, "name": "test"})
+    assert res.status_code == 400
+    obj = json.loads(res.data)
+    assert obj['message'] == "Failed to create employee"
+
+    res = client[0].put("/employee/update/1", json={"id":1, "name": "test"})
+    assert res.status_code == 400
+    obj = json.loads(res.data)
+    assert obj['message'] == 'Failed to update employee'
+
+    client[1].publish.side_effect = RuntimeError("MQTT client is down")
+    response = client[0].delete("/employee/delete/1")
+    assert response.status_code == 400
+    obj = json.loads(response.data)
+    assert obj['message'] == "Failed to delete employee"
+
+    response = client[0].post("/", json={"content": "test"})
+    assert response.status_code == 400
+    obj = json.loads(response.data)
+    assert obj['message'] == 'Failed to create project'
+
+    response = client[0].put("/update/1", json={"content": "test"})
+    assert response.status_code == 400
+    obj = json.loads(response.data)
+    assert obj['message'] == 'Failed to update project'
+    response = client[0].delete("/delete/1")
+    assert response.status_code == 400
+    obj = json.loads(response.data)
+    assert obj['message'] == 'Failed to delete project'
+
+
+
+import member as e_methods
+import app as p_methods
+
+def test_insert_table(dbsession,mock_app):
+    client = MagicMock()
+    message = MagicMock()
+    message.payload.decode.return_value = json.dumps({'id': 1, 'name': 'Alice'})
+    with patch('app.db.session', new = dbsession), patch('app.app', return_value=mock_app):
+        e_methods.insert_table(client, None, message)
+    new_employee = dbsession.query(Employee).filter_by(name='Alice').first()
+    assert new_employee.id == 1
+    assert new_employee.name == 'Alice'
+    client.publish.assert_called_with("display_message", f"Employee created successfully with id: {new_employee.id}")
+# #
+def test_update_table(dbsession,mock_app):
+    client = MagicMock()
+    message = MagicMock()
+    # Insert a sample employee to update
+    employee = Employee(name='Bob')
+    dbsession.add(employee)
+    dbsession.commit()
+    message.payload.decode.return_value = json.dumps({
+        'e_id': employee.id,
+        'user': {'name': 'Bob Updated'}
+    })
+    with patch('app.db.session', new = dbsession), patch('app.app', new=mock_app):
+        e_methods.update_table(client, None, message)
+    updated_employee = dbsession.query(Employee).filter_by(id=employee.id).one()
+    assert updated_employee.name == 'Bob Updated'
+    client.publish.assert_called_with("display_message", f"Employee updated successfully with id: {employee.id}")
+
+def test_delete_record(dbsession, mock_app):
+    client = MagicMock()
+    message = MagicMock()
+    # Insert a sample employee to delete
+    employee = Employee(name='Charlie')
+    dbsession.add(employee)
+    dbsession.commit()
+    message.payload.decode.return_value = str(employee.id)
+    with patch('app.db.session', new = dbsession), patch('app.app', new=mock_app):
+        e_methods.delete_record(client, None, message)
+    deleted_employee = dbsession.query(Employee).filter_by(id=employee.id).first()
+    assert deleted_employee is None
+    client.publish.assert_called_with("display_message", f"Employee deleted successfully with id: {employee.id}")
+
+
+def test_insert_table_project(dbsession,mock_app):
+    client = MagicMock()
+    message = MagicMock()
+    message.payload.decode.return_value = json.dumps({'content': 'Project'})
+    with patch('app.db.session', new = dbsession), patch('app.app', return_value=mock_app):
+        p_methods.insert_table(client, None, message)
+    new_project = dbsession.query(Todo).filter_by(content='Project').first()
+    assert new_project.content == 'Project'
+    client.publish.assert_called_with("display_message", f"Project created successfully with id: {new_project.id}")
+# #
+def test_update_table_project(dbsession,mock_app):
+    client = MagicMock()
+    message = MagicMock()
+    # Insert a sample employee to update
+    project =   Todo(content='Project')
+    dbsession.add(project)
+    dbsession.commit()
+    message.payload.decode.return_value = json.dumps({
+        'p_id': project.id,
+        'project': {'content': 'P2'}
+    })
+    with patch('app.db.session', new = dbsession), patch('app.app', new=mock_app):
+        p_methods.update_table(client, None, message)
+    updated_employee = dbsession.query(Todo).filter_by(id=project.id).one()
+    assert updated_employee.content == 'P2'
+    # assert updated_employee.department == 'Finance'
+    client.publish.assert_called_with("display_message", f"Project updated successfully with id: {updated_employee.id}")
+
+def test_delete_record_project(dbsession, mock_app):
+    client = MagicMock()
+    message = MagicMock()
+    # Insert a sample employee to delete
+    project = Todo(name='Project')
+    dbsession.add(project)
+    dbsession.commit()
+    message.payload.decode.return_value = str(project.id)
+    with patch('app.db.session', new = dbsession), patch('app.app', new=mock_app):
+        p_methods.delete_record(client, None, message)
+    deleted_employee = dbsession.query(Todo).filter_by(id=project.id).first()
+    assert deleted_employee is None
+    client.publish.assert_called_with("display_message", f"Employee deleted successfully with id: {project.id}")

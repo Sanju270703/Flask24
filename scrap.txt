@@ -1,0 +1,59 @@
+# test_app.py
+import json
+from app import db, Todo
+
+def test_index_page(test_client):
+    response = test_client.get('/')
+    assert response.status_code == 200
+    assert b'Task' in response.data
+
+def test_create_task(test_client, init_database, mock_mqtt_client):
+    task_data = {'content': 'Test Task'}
+    response = test_client.post('/', json=task_data)
+    assert response.status_code == 302  # Redirect after task creation
+
+    task = Todo.query.first()
+    assert task is not None
+    assert task.content == 'Test Task'
+
+    mock_mqtt_client.publish.assert_called_once_with('flask/mqtt/create', f'Task Created: {task.id}')
+
+def test_delete_task(test_client, init_database, mock_mqtt_client):
+    task = Todo(content='Task to be deleted')
+    db.session.add(task)
+    db.session.commit()
+
+    response = test_client.get(f'/delete/{task.id}')
+    assert response.status_code == 302  # Redirect after task deletion
+
+    task = Todo.query.get(task.id)
+    assert task is None
+
+    mock_mqtt_client.publish.assert_called_once_with('flask/mqtt/delete', f'Task Deleted: {task.id}')
+
+def test_update_task(test_client, init_database, mock_mqtt_client):
+    task = Todo(content='Task to be updated')
+    db.session.add(task)
+    db.session.commit()
+
+    updated_data = {'content': 'Updated Task', 'employee_id': 1}
+    response = test_client.put(f'/update/{task.id}', json=updated_data)
+    assert response.status_code == 302  # Redirect after task update
+
+    task = Todo.query.get(task.id)
+    assert task.content == 'Updated Task'
+    assert task.employee_id == 1
+
+    mock_mqtt_client.publish.assert_called_once_with('flask/mqtt/update', f'Task Updated: {task.id} 1')
+
+def test_get_employee_tasks(test_client, init_database, mocker):
+    # Mock Employee query
+    mock_employee = mocker.patch('app.Employee.query.get')
+    mock_employee.return_value = Employee(id=1, name='Test Employee')
+
+    employee_id = 1
+    response = test_client.get(f'/employeeTodos/{employee_id}/')
+    assert response.status_code == 200
+    data = json.loads(response.data)
+    assert data['employee'] == 'Test Employee'
+    assert len(data['tasks']) == 0  # Assuming no tasks for the employee initially

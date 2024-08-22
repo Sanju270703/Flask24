@@ -1,0 +1,79 @@
+Message received: Task Created: 12 on topic flask/mqtt/createMessage received: Task Created: 12 on topic flask/mqtt/create
+ Message received: Task Created: 15 on topic flask/mqtt/create
+ Message received: Task Created: 15 on topic flask/mqtt/create
+ Message received: Task Deleted: 2 on topic flask/mqtt/delete
+ Message received: Task Deleted: 2 on topic flask/mqtt/delete
+ Message received: Task Created: 18 on topic flask/mqtt/create
+ Message received: Task Created: 18 on topic flask/mqtt/create
+ Message received: Task Created: 19 on topic flask/mqtt/create
+ Message received: Task Created: 19 on topic flask/mqtt/create
+ Message received: Task Deleted: 19 on topic flask/mqtt/delete
+ Message received: Task Deleted: 19 on topic flask/mqtt/delete
+ Message received: Task Updated: 18 on topic flask/mqtt/update
+ Message received: Task Updated: 18 on topic flask/mqtt/update
+ Message received: Task Deleted: 18 on topic flask/mqtt/delete
+ Message received: Task Deleted: 18 on topic flask/mqtt/delete
+ Message received: Task Deleted: 16 on topic flask/mqtt/delete
+ Message received: Task Deleted: 16 on topic flask/mqtt/delete
+ Message received: Task Deleted: 15 on topic flask/mqtt/delete
+ Message received: Task Deleted: 15 on topic flask/mqtt/delete
+ Message received: Task Deleted: 14 on topic flask/mqtt/delete
+ Message received: Task Deleted: 14 on topic flask/mqtt/delete
+ Message received: Task Updated: 13 on topic flask/mqtt/update
+ Message received: Task Updated: 13 on topic flask/mqtt/update
+ Message received: Task Updated: 10 on topic flask/mqtt/update
+ Message received: Task Updated: 10 on topic flask/mqtt/update
+ Message received: Task Deleted: 10 on topic flask/mqtt/delete
+ Message received: Task Deleted: 10 on topic flask/mqtt/delete
+ Message received: Task Created: 20 on topic flask/mqtt/create
+ Message received: Task Created: 20 on topic flask/mqtt/create
+ Message received: Task Created: 21 on topic flask/mqtt/create
+ Message received: Task Created: 21 on topic flask/mqtt/create
+ Message received: Task Created: 22 on topic flask/mqtt/create
+ Message received: Task Deleted: 22 on topic flask/mqtt/delete
+ Message received: Task Deleted: 21 on topic flask/mqtt/delete
+ Message received: Task Created: 23 on topic flask/mqtt/create
+ Message received: Task Updated: None on topic flask/mqtt/update
+ Message received: Task Updated: None on topic flask/mqtt/update
+ Message received: Task Updated: None on topic flask/mqtt/update
+ Message received: Task Updated: None on topic flask/mqtt/update
+ Message received: Task Updated: 1 on topic flask/mqtt/update
+ Message received: Task Updated: 3 on topic flask/mqtt/update
+ Message received: Task Updated: 3 on topic flask/mqtt/update
+ Message received: Task Updated: None on topic flask/mqtt/update
+ Message received: Task Updated: None on topic flask/mqtt/update
+ Message received: Task Updated: 3 on topic flask/mqtt/update
+ Message received: Task Updated: 3 on topic flask/mqtt/update
+ Message received: Task Updated: 3 on topic flask/mqtt/update
+ Message received: Task Deleted: 23 on topic flask/mqtt/delete
+ Message received: Task Deleted: 23 on topic flask/mqtt/delete
+ Message received: Task Deleted: 1 on topic flask/mqtt/delete
+ Message received: Task Deleted: 1 on topic flask/mqtt/delete
+ Message received: Task Created: 25 on topic flask/mqtt/create
+ Message received: Task Created: 25 on topic flask/mqtt/create
+ Message received: Task Created: 26 on topic flask/mqtt/create
+ Message received: Task Created: 26 on topic flask/mqtt/create
+ Message received: Task Updated: 25 1 on topic flask/mqtt/update
+ Message received: Task Updated: 25 1 on topic flask/mqtt/update
+ Message received: Task Updated: 26 2 on topic flask/mqtt/update
+ Message received: Task Updated: 26 2 on topic flask/mqtt/update
+ Message received: Task Created: 27 on topic flask/mqtt/create
+ Message received: Task Created: 27 on topic flask/mqtt/create
+ Message received: Task Created: 1 on topic flask/mqtt/create
+ Message received: Task Created: 1 on topic flask/mqtt/create
+ Message received: Task Created: 1 on topic flask/mqtt/create
+ Message received: Task Created: 1 on topic flask/mqtt/create
+ Message received: Task Created: 1 on topic flask/mqtt/create
+ Message received: Task Created: 1 on topic flask/mqtt/create
+ Message received: Task Created: 1 on topic flask/mqtt/create
+ Message received: Task Created: 1 on topic flask/mqtt/create
+ Message received: Task Updated: 1 None on topic flask/mqtt/update
+ Message received: Task Updated: 1 None on topic flask/mqtt/update
+ Message received: Task Updated: 1 None on topic flask/mqtt/update
+ Message received: Task Updated: 1 None on topic flask/mqtt/update
+ Message received: Task Deleted: 1 on topic flask/mqtt/delete
+ Message received: Task Deleted: 1 on topic flask/mqtt/delete
+ Message received: Task Created: 1 on topic flask/mqtt/create
+ Message received: Task Created: 1 on topic flask/mqtt/create
+ Message received: Task Created: 1 on topic flask/mqtt/create
+ Message received: Task Created: 1 on topic flask/mqtt/create
